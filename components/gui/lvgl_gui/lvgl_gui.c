@@ -93,20 +93,24 @@ static void gui_task(void *args)
     }
 }
 
-esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv)
+esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv, int core)
 {
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
       * Otherwise there can be problem such as memory corruption and so on.
       * NOTE: When not using Wi-Fi nor Bluetooth you can pin the gui_task to core 0 */
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    ESP_LOGI(TAG, "GUI Run at %s Pinned to Core%d", CONFIG_IDF_TARGET, chip_info.cores - 1);
+    if (core > chip_info.cores - 1)
+    {
+      core = chip_info.cores - 1;
+    }
+    ESP_LOGI(TAG, "GUI Run at %s Pinned to Core%d", CONFIG_IDF_TARGET, core);
 
     static lvgl_drv_t lvgl_driver;
     lvgl_driver.lcd_drv = lcd_drv;
     lvgl_driver.touch_drv = touch_drv;
 
-    xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 8, &lvgl_driver, 5, NULL, chip_info.cores - 1);
+    xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 8, &lvgl_driver, 5, NULL, core);
 
     uint16_t timeout = 20;
     while (NULL == xGuiSemaphore) {

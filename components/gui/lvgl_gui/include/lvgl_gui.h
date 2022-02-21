@@ -19,12 +19,13 @@ extern "C"
  * 
  * @param lcd_drv Pointer of lcd driver
  * @param touch_drv  Pointer of touch driver. If you don't have a touch panel, set it to NULL
+ * @param core  Number of core to use.
  * 
  * @return
  *     - ESP_OK Success
  *     - ESP_ERR_TIMEOUT Operation timeout
  */
-esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv);
+esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv, int core);
 
 #ifdef __cplusplus
 }
