@@ -192,8 +192,8 @@ static void set_yp_high(void)
 static uint32_t set_yp_input(void)
 {
     uint32_t retval = 0;
-    // Initialise ESP32 internal ADC
-    adc_gpio_init(g_dev.io_YP_ADC, g_dev.io_YP_CH);
+    // Reset pin to high impedance (it may be configured as an output and driven high)
+    gpio_reset_pin(g_dev.io_YP);
     // For ESP32 internal ADC's, the Full Scale voltage depends on the configured attenuation.
     // I use 11dB attentuation to get a full scale voltage of 3.9V
     if (ADC_UNIT_1 == g_dev.io_YP_ADC) {
@@ -268,8 +268,8 @@ static void set_xm_low(void)
 static uint32_t set_xm_input(void)
 {
     uint32_t retval = 0;
-    // Initialise ESP32 internal ADC
-    adc_gpio_init(g_dev.io_XM_ADC, g_dev.io_XM_CH);
+    // Reset pin to high impedance (it may be configured as an output and driven low)
+    gpio_reset_pin(g_dev.io_XM);
     // For ESP32 internal ADC's, the Full Scale voltage depends on the configured attenuation.
     // I use 11dB attentuation to get a full scale voltage of 3.9V
     if (ADC_UNIT_1 == g_dev.io_XM_ADC) {
