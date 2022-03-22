@@ -110,7 +110,7 @@ esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv, int 
     lvgl_driver.lcd_drv = lcd_drv;
     lvgl_driver.touch_drv = touch_drv;
 
-    xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 8, &lvgl_driver, 5, NULL, core);
+    xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 3, &lvgl_driver, 5, NULL, core);
 
     uint16_t timeout = 20;
     while (NULL == xGuiSemaphore) {
