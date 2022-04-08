@@ -436,20 +436,32 @@ esp_err_t res4w_set_direction(touch_panel_dir_t dir)
 
 esp_err_t res4w_get_rawdata(uint16_t *x, uint16_t *y)
 {
-    position_t samples[RES4W_SMP_SIZE];
+    position_t sample;
     uint32_t aveX = 0;
     uint32_t aveY = 0;
+    int valid_count = 0;
 
     for (int i = 0; i < RES4W_SMP_SIZE; i++) {
-        samples[i].x = get_x_val();
-        samples[i].y = get_y_val();
+        sample.x = get_x_val();
+        sample.y = get_y_val();
 
-        aveX += samples[i].x;
-        aveY += samples[i].y;
+        // Only add the samples to the average if they are valid
+        if ((sample.x >= TOUCH_SAMPLE_MIN) && (sample.x <= TOUCH_SAMPLE_MAX) &&
+            (sample.y >= TOUCH_SAMPLE_MIN) && (sample.y <= TOUCH_SAMPLE_MAX)) {
+            aveX += sample.x;
+            aveY += sample.y;
+            valid_count++;
+        }
     }
 
-    aveX /= RES4W_SMP_SIZE;
-    aveY /= RES4W_SMP_SIZE;
+    // If we don't have at least 50% valid samples, there was no valid touch.
+    if (valid_count >= (RES4W_SMP_SIZE / 2)) {
+        aveX /= valid_count;
+        aveY /= valid_count;
+    } else {
+        aveX = 1;
+        aveY = 1;
+    }
 
     *x = aveX;
     *y = aveY;
