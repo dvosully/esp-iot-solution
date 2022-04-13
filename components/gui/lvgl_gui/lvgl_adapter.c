@@ -69,9 +69,13 @@ esp_err_t lvgl_display_init(scr_driver_t *driver)
     disp_drv.flush_cb = ex_disp_flush; /*Used in buffered mode (LV_VDB_SIZE != 0  in lv_conf.h)*/
 
     size_t free_size = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-    const size_t remain_size = 60 * 1024; /**< Remain for other functions */
+    size_t remain_size = 60 * 1024; /**< Remain for other functions */
     size_t alloc_pixel = DISP_BUF_SIZE;
     if (((BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel)) + remain_size) > free_size) {
+        if (remain_size > free_size) {
+            // If we can't leave 60k of spare memory, just leave half of whatever is left.
+            remain_size = free_size / 2;
+        }
         size_t allow_size = (free_size - remain_size) & 0xfffffffc;
         alloc_pixel = SIZE_TO_PIXEL(allow_size / BUFFER_NUMBER);
         ESP_LOGW(TAG, "Exceeded max free size, force shrink to %u Byte", allow_size);
