@@ -72,9 +72,15 @@ esp_err_t lvgl_display_init(scr_driver_t *driver)
     size_t remain_size = 60 * 1024; /**< Remain for other functions */
     size_t alloc_pixel = DISP_BUF_SIZE;
     if (((BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel)) + remain_size) > free_size) {
-        if (remain_size > free_size) {
+        if ((remain_size > free_size) || (free_size / 2 > alloc_pixel)) {
+            ESP_LOGW(TAG, "Free size = %d Bytes, Initial remain size = %d Bytes", free_size, remain_size);
             // If we can't leave 60k of spare memory, just leave half of whatever is left.
             remain_size = free_size / 2;
+            ESP_LOGW(TAG, "Final remain size = %d Bytes", remain_size);
+        }
+        if (alloc_pixel > DISP_BUF_SIZE) {
+            // If half the remaining memory is more than we originally planned to allocate, just stick with the original plan.
+            alloc_pixel = DISP_BUF_SIZE;
         }
         size_t allow_size = (free_size - remain_size) & 0xfffffffc;
         alloc_pixel = SIZE_TO_PIXEL(allow_size / BUFFER_NUMBER);
