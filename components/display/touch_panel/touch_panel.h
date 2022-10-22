@@ -124,6 +124,7 @@ typedef enum {
     /* Resistance touch panel */
     TOUCH_PANEL_CONTROLLER_XPT2046,
     TOUCH_PANEL_CONTROLLER_NS2016,
+    TOUCH_PANEL_CONTROLLER_RES4W,
 } touch_panel_controller_t;
 
 /**
@@ -146,6 +147,14 @@ typedef struct {
             int8_t pin_num_cs;           /*!< SPI Chip Select Pin */
             int clk_freq;                /*!< spi clock frequency */
         } interface_spi;
+
+        /** Res4W interface */
+        struct {
+            int8_t pin_num_yp;           /*!< Pin number of resistive Y+ pin. Must be ADC */
+            int8_t pin_num_ym;           /*!< Pin number of resistive Y- pin. */
+            int8_t pin_num_xp;           /*!< Pin number of resistive X+ pin. */
+            int8_t pin_num_xm;           /*!< Pin number of resistive X- pin. Must be ADC */
+        } interface_res4w;
     };
 
     touch_panel_interface_type_t interface_type;   /*!< Interface bus type, see touch_interface_type_t struct */
