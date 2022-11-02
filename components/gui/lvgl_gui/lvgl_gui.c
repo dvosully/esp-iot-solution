@@ -215,9 +215,9 @@ esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv)
     ESP_GOTO_ON_FALSE(NULL != xGuiSemaphore, ESP_FAIL, err, TAG, "Create mutex for LVGL failed");
 
 #if CONFIG_FREERTOS_UNICORE == 0
-    int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 8, NULL, 5, &g_lvgl_task_handle, 1);
+    int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 3, NULL, 5, &g_lvgl_task_handle, 0);
 #else
-    int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 8, NULL, 5, &g_lvgl_task_handle, 0);
+    int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * 3, NULL, 5, &g_lvgl_task_handle, 0);
 #endif
     ESP_GOTO_ON_FALSE(pdPASS == err, ESP_FAIL, err, TAG, "Create task for LVGL failed");
 
