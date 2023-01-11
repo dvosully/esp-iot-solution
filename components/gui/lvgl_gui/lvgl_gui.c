@@ -53,10 +53,9 @@ static void ex_disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t 
     lv_disp_flush_ready(drv);
 }
 
-#define DISP_BUF_SIZE  (g_screen_width * 64)
+#define DISP_BUF_SIZE  (g_screen_width * CONFIG_LVGL_DISPLAY_BUFFER_SIZE)
 #define SIZE_TO_PIXEL(v) ((v) / sizeof(lv_color_t))
 #define PIXEL_TO_SIZE(v) ((v) * sizeof(lv_color_t))
-#define BUFFER_NUMBER (2)
 
 static esp_err_t lvgl_display_init(scr_driver_t *driver)
 {
@@ -81,7 +80,7 @@ static esp_err_t lvgl_display_init(scr_driver_t *driver)
     size_t free_size = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     size_t remain_size = CONFIG_LVGL_MEM_REMAIN_SIZE * 1024; /**< Remain for other functions */
     size_t alloc_pixel = DISP_BUF_SIZE;
-    if (((BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel)) + remain_size) > free_size) {
+    if (((CONFIG_LVGL_DISPLAY_BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel)) + remain_size) > free_size) {
         if ((remain_size > free_size) || (free_size / 2 > alloc_pixel)) {
             ESP_LOGW(TAG, "Free size = %d Bytes, Initial remain size = %d Bytes", free_size, remain_size);
             // If we can't leave 60k of spare memory, just leave half of whatever is left.
@@ -89,7 +88,7 @@ static esp_err_t lvgl_display_init(scr_driver_t *driver)
             ESP_LOGW(TAG, "Final remain size = %d Bytes", remain_size);
         }
         size_t allow_size = (free_size - remain_size) & 0xfffffffc;
-        alloc_pixel = SIZE_TO_PIXEL(allow_size / BUFFER_NUMBER);
+        alloc_pixel = SIZE_TO_PIXEL(allow_size / CONFIG_LVGL_DISPLAY_BUFFER_NUMBER);
         if (alloc_pixel > DISP_BUF_SIZE) {
             // If half the remaining memory is more than we originally planned to allocate, just stick with the original plan.
             alloc_pixel = DISP_BUF_SIZE;
@@ -104,7 +103,7 @@ static esp_err_t lvgl_display_init(scr_driver_t *driver)
         ESP_LOGE(TAG, "Display buffer memory not enough");
         return ESP_ERR_NO_MEM;
     }
-#if (BUFFER_NUMBER == 2)
+#if (CONFIG_LVGL_DISPLAY_BUFFER_NUMBER == 2)
     lv_color_t *buf2 = heap_caps_malloc(PIXEL_TO_SIZE(alloc_pixel), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     if (NULL == buf2) {
         heap_caps_free(buf1);
@@ -113,11 +112,11 @@ static esp_err_t lvgl_display_init(scr_driver_t *driver)
     }
 #endif
 
-    ESP_LOGI(TAG, "Alloc memory total size: %u Byte", BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel));
+    ESP_LOGI(TAG, "Alloc memory total size: %u Byte", CONFIG_LVGL_DISPLAY_BUFFER_NUMBER * PIXEL_TO_SIZE(alloc_pixel));
 
     static lv_disp_buf_t disp_buf;
 
-#if (BUFFER_NUMBER == 2)
+#if (CONFIG_LVGL_DISPLAY_BUFFER_NUMBER == 2)
     lv_disp_buf_init(&disp_buf, buf1, buf2, alloc_pixel);
 #else
     lv_disp_buf_init(&disp_buf, buf1, NULL, alloc_pixel);
