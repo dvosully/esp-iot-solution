@@ -640,6 +640,18 @@ menu "LVGL configuration"
             prompt "Aspirational minimum amount of memory to leave available for other functions when allocating display buffer"
             range 2 80
             default 60
+
+        config LVGL_DISPLAY_BUFFER_NUMBER
+            int
+            prompt "Number of display buffers to be allocated"
+            range 1 2
+            default 2
+
+        config LVGL_DISPLAY_BUFFER_SIZE
+            int
+            prompt "Size of the display buffer (in rows)"
+            range 1 320
+            default 64
     endmenu
 
     menu "LVGL Task settings"

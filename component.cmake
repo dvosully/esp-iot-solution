@@ -1,5 +1,5 @@
 
-add_compile_options(-fdiagnostics-color=always)
+add_compile_options("-fdiagnostics-color=always" "-Wno-format")
 
 list(APPEND EXTRA_COMPONENT_DIRS 
                                 "$ENV{IOT_SOLUTION_PATH}/components/audio"
