@@ -655,6 +655,10 @@ menu "LVGL configuration"
     endmenu
 
     menu "LVGL Task settings"
+        config LVGL_USE_TASK
+            bool "Enable the LVGL task"
+            default y
+
         config LVGL_TASK_MEM_SIZE
             int
             prompt "Size of the memory allocated to the LV GUI task in kilobytes (>= 2kB)"

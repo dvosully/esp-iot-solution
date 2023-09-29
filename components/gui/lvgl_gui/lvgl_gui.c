@@ -171,6 +171,7 @@ static void lv_tick_timercb(void *timer)
     lv_tick_inc(LVGL_TICK_MS);
 }
 
+#if defined(CONFIG_LVGL_USE_TASK)
 static void gui_task(void *args)
 {
     ESP_LOGI(TAG, "Start to run LVGL");
@@ -184,6 +185,7 @@ static void gui_task(void *args)
         }
     }
 }
+#endif
 
 esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv)
 {
@@ -215,6 +217,7 @@ esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv)
     xGuiSemaphore = xSemaphoreCreateMutex();
     ESP_GOTO_ON_FALSE(NULL != xGuiSemaphore, ESP_FAIL, err, TAG, "Create mutex for LVGL failed");
 
+#if defined(CONFIG_LVGL_USE_TASK)
 #if CONFIG_FREERTOS_UNICORE || CONFIG_LVGL_TASK_CORE_AFFINITY_CPU0
     int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * CONFIG_LVGL_TASK_MEM_SIZE, NULL, CONFIG_LVGL_TASK_PRIORITY, &g_lvgl_task_handle, 0);
 #elif CONFIG_LVGL_TASK_CORE_AFFINITY_CPU1
@@ -223,7 +226,7 @@ esp_err_t lvgl_init(scr_driver_t *lcd_drv, touch_panel_driver_t *touch_drv)
     int err = xTaskCreatePinnedToCore(gui_task, "lv gui", 1024 * CONFIG_LVGL_TASK_MEM_SIZE, NULL, CONFIG_LVGL_TASK_PRIORITY, &g_lvgl_task_handle, tskNO_AFFINITY);
 #endif
     ESP_GOTO_ON_FALSE(pdPASS == err, ESP_FAIL, err, TAG, "Create task for LVGL failed");
-
+#endif
     esp_timer_start_periodic(tick_timer, LVGL_TICK_MS * 1000U);
     return ESP_OK;
 err:
